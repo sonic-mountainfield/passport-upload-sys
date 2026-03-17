@@ -27,7 +27,7 @@ export default function App() {
   const [isSuccess, setIsSuccess] = useState(false);
 
   // 📝 請在這裡填入你的專屬代碼！
-  const CLOUD_NAME = 'dzsvhoo2d'; // 你的 Cloudinary 名稱
+  const CLOUD_NAME = 'dzvhoo2d'; // 你的 Cloudinary 名稱
   const UPLOAD_PRESET = 'z2ln6ju0'; // 你的 Cloudinary 無簽名上傳憑證
   const SHEETDB_URL = 'https://sheetdb.io/api/v1/0r2rfy0cdm7yk?sheet=護照'; // 你的 SheetDB 網址
 
