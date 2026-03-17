@@ -10,11 +10,12 @@ const TOUR_OPTIONS = [
   "[S2] 7/16～7/18 富士山三日",
   "[S3] 7/23～7/25 富士山三日",
   "[S4] 7/30～8/1 富士山三日",
-  "[S5] 8/3～8/5 富士山三日 (待確認)",
+  "[S5] 8/3～8/5 富士山三日",
   "[S6] 8/23～8/25 富士山三日",
   "[S7] 8/27～8/29 富士山三日",
+  "[SS] 9/3～9/5 富士山三日",
   "[S8] 9/6～9/8 富士山三日",
-  "[SS] 9/3～9/5 富士山五日 (等成團)",
+  
 ];
 
 export default function App() {
@@ -27,8 +28,8 @@ export default function App() {
 
   // 📝 請在這裡填入你的專屬代碼！
   const CLOUD_NAME = 'dzsvhoo2d'; // 你的 Cloudinary 名稱
-  const UPLOAD_PRESET = '替換成你的_Upload_Preset'; // 你的 Cloudinary 無簽名上傳憑證
-  const SHEETDB_URL = 'https://sheetdb.io/api/v1/替換成收護照的API代碼'; // 你的 SheetDB 網址
+  const UPLOAD_PRESET = 'z2ln6ju0'; // 你的 Cloudinary 無簽名上傳憑證
+  const SHEETDB_URL = 'https://sheetdb.io/api/v1/0r2rfy0cdm7yk?sheet=護照'; // 你的 SheetDB 網址
 
   // 處理文字輸入
   const handleInputChange = (e) => {
