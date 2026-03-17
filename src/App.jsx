@@ -173,7 +173,7 @@ export default function App() {
                       {previewUrl ? '更換照片' : '點擊拍照或選擇檔案'}
                     </span>
                     {/* 🚀 這裡加入了 capture="environment" 讓手機優先開相機！ */}
-                    <input type="file" className="sr-only" accept="image/*" capture="environment" onChange={handleFileChange} />
+                    <input type="file" className="sr-only" accept="image/*" onChange={handleFileChange} />
                   </label>
                 </div>
                 {!previewUrl && <p className="text-xs text-gray-500 mt-4">請確保燈光充足，反光不遮擋字體</p>}
