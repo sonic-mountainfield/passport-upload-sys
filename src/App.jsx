@@ -1,6 +1,7 @@
+'use client';
 import React, { useState, useEffect } from 'react';
 
-// 岳野登山社 - 最新海外出團列表
+// 岳野登山社 - 2027 最新海外出團列表
 const TOUR_OPTIONS = [
   "【富士山三日】[S1] 7/8(四)~7/10(六)",
   "【富士山三日】[S2] 7/15(四)~7/17(六)",
@@ -41,7 +42,7 @@ export default function App() {
   const UPLOAD_PRESET = 'z2ln6ju0'; 
   const PASSPORT_SHEETDB_URL = 'https://sheetdb.io/api/v1/0r2rfy0cdm7yk?sheet=護照'; 
 
-  // 自動解析主系統傳入的參數
+  // 自動解析主系統傳入的參數 (自動填入姓名與報名編號)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -71,6 +72,21 @@ export default function App() {
     }
   };
 
+  // 關閉分頁防呆機制
+  const handleCloseTab = () => {
+    try {
+      window.opener = null;
+      window.open('', '_self');
+      window.close();
+    } catch (e) {
+      console.log('Close window blocked:', e);
+    }
+
+    setTimeout(() => {
+      alert('因手機瀏覽器安全限制，請直接點選上方分頁的「✕」或使用手機手勢關閉此分頁，或點擊下方按鈕返回查詢系統！');
+    }, 400);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!file) {
@@ -91,12 +107,12 @@ export default function App() {
         body: cloudinaryFormData
       });
 
-      if (!cloudinaryRes.ok) throw new Error('圖片上傳雲端失敗，請檢查 Cloudinary 設定');
+      if (!cloudinaryRes.ok) throw new Error('圖片上傳雲端失敗，請檢查網路連線或設定');
       
       const cloudinaryData = await cloudinaryRes.json();
       const imageUrl = cloudinaryData.secure_url; 
 
-      // 2. 存入護照 SheetDB
+      // 2. 存入護照備用 SheetDB 資料庫
       const sheetPayload = {
         data: [{
           "團名與日期": formData.tour,
@@ -112,7 +128,7 @@ export default function App() {
         body: JSON.stringify(sheetPayload)
       });
 
-      if (!sheetRes.ok) throw new Error('護照資料庫儲存失敗，請檢查資料庫連線');
+      if (!sheetRes.ok) throw new Error('護照資料庫儲存失敗，請檢查 SheetDB');
 
       // 3. 同步回主報名系統，將狀態改為「已上傳」
       if (orderId) {
@@ -144,22 +160,45 @@ export default function App() {
     }
   };
 
+  // 成功畫面 (含安全返回與關閉處理)
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 font-sans">
-        <div className="max-w-md w-full p-8 bg-white rounded-2xl shadow-xl text-center border-t-4 border-green-600 space-y-4">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans">
+        <div className="max-w-md w-full p-8 bg-white rounded-2xl shadow-xl text-center border-t-4 border-emerald-500 space-y-5">
           <div className="text-5xl">✅</div>
-          <h2 className="text-2xl font-bold text-gray-800">護照上傳成功！</h2>
-          <p className="text-sm text-gray-600 leading-relaxed">
-            您的護照資料已成功送出並同步至岳野報名系統。<br />
-            行政團隊將為您進行入山審查與海外高額保險投保。
+          <h2 className="text-2xl font-bold text-slate-800">護照上傳成功！</h2>
+          <p className="text-sm text-slate-600 leading-relaxed">
+            您的護照資料已成功送出，並已同步更新至岳野報名系統。<br />
+            您可以切換回查詢頁面點擊<strong>「重新整理狀態」</strong>檢視最新結果。
           </p>
-          <button 
-            onClick={() => window.close()} 
-            className="w-full py-3 bg-gray-900 hover:bg-black text-white font-bold rounded-xl transition-colors shadow-sm"
-          >
-            關閉此分頁
-          </button>
+
+          <div className="space-y-2.5 pt-2">
+            <button 
+              onClick={() => {
+                if (window.history.length > 1) {
+                  window.history.back();
+                } else if (document.referrer) {
+                  window.location.href = document.referrer;
+                } else {
+                  handleCloseTab();
+                }
+              }}
+              className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-colors shadow-sm flex items-center justify-center gap-1.5"
+            >
+              <span>← 返回報名查詢系統</span>
+            </button>
+
+            <button 
+              onClick={handleCloseTab} 
+              className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors text-sm"
+            >
+              關閉此分頁
+            </button>
+          </div>
+
+          <p className="text-[11px] text-slate-400">
+            💡 提示：若點擊關閉無反應，請直接關閉此瀏覽器分頁切換回原畫面。
+          </p>
         </div>
       </div>
     );
@@ -190,12 +229,10 @@ export default function App() {
           {/* 標準範例圖 (內建 SVG 圖解) */}
           <div className="flex justify-center py-2">
             <div className="relative bg-white border-2 border-emerald-500 rounded-lg p-3 shadow-sm w-full max-w-[320px]">
-              {/* 正確徽章 */}
               <div className="absolute -top-3 -right-2 bg-emerald-600 text-white text-[11px] font-bold px-2 py-0.5 rounded-full shadow">
                 ✓ 合格範例
               </div>
 
-              {/* 護照頁面線條圖解 */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between border-b border-dashed border-slate-300 pb-1.5">
                   <span className="text-[10px] font-bold text-slate-500">PASSPORT 護照個人資料頁</span>
@@ -203,12 +240,10 @@ export default function App() {
                 </div>
 
                 <div className="flex gap-3 items-center">
-                  {/* 大頭照示意 */}
                   <div className="w-16 h-20 bg-slate-100 border border-slate-300 rounded flex flex-col items-center justify-center text-slate-400">
                     <span className="text-xs">👤</span>
                     <span className="text-[8px] mt-1 text-slate-500">清晰無反光</span>
                   </div>
-                  {/* 個人文字欄位示意 */}
                   <div className="flex-1 space-y-1.5 text-[9px] text-slate-600">
                     <div className="bg-slate-200 h-2 rounded w-3/4"></div>
                     <div className="bg-slate-200 h-2 rounded w-1/2"></div>
@@ -217,7 +252,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* 條碼區域示意 (MRZ 機器可讀區) */}
                 <div className="bg-slate-100 p-1.5 rounded border border-slate-200 space-y-1">
                   <div className="font-mono text-[8px] text-slate-500 tracking-wider">
                     P&lt;TWNCHEN&lt;&lt;DA&lt;WEI&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
@@ -228,7 +262,6 @@ export default function App() {
                 </div>
               </div>
 
-              {/* 四個邊角完整提示 */}
               <div className="mt-2 text-center text-[10px] text-emerald-700 font-bold bg-emerald-50 rounded py-0.5 border border-emerald-200">
                 四角完整保留 · 不切邊不遮擋
               </div>
@@ -318,13 +351,12 @@ export default function App() {
                 <div className="flex text-sm text-slate-600 justify-center w-full pt-1">
                   <label className="relative cursor-pointer rounded-xl font-bold text-sky-600 hover:text-sky-500 p-2 w-full">
                     <span className="bg-white border border-sky-300 px-5 py-2.5 rounded-full shadow-sm hover:bg-sky-50 transition-colors inline-block">
-                      {previewUrl ? '📷 更換/重拍照片' : '📷 點此開啟相機拍照或選擇相簿檔案'}
+                      {previewUrl ? '📷 更換照片' : '📷 點此開啟相簿或拍照'}
                     </span>
                     <input 
                       type="file" 
                       className="sr-only" 
                       accept="image/*" 
-                      capture="environment" 
                       onChange={handleFileChange} 
                     />
                   </label>
